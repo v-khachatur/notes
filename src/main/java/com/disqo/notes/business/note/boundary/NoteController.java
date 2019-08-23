@@ -1,5 +1,6 @@
 package com.disqo.notes.business.note.boundary;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import com.disqo.notes.business.common.entity.EntityNotFoundException;
 import com.disqo.notes.business.note.control.NoteMapper;
@@ -40,11 +42,13 @@ public class NoteController {
     private NoteMapper noteMapper;
 
     @PostMapping
-    public NoteModel createNote(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
+    public ResponseEntity<NoteModel> createNote(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody @Valid NoteModel noteModel) {
         Note note = noteMapper.fromNoteModel(noteModel);
         note = noteService.createNote(note, principal.getUserId());
-        return noteMapper.toNoteModel(note);
+
+        URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(note.getId()).toUri();
+        return ResponseEntity.created(uri).body(noteMapper.toNoteModel(note));
     }
 
     @PutMapping("/{id}")
