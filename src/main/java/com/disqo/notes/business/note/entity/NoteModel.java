@@ -9,12 +9,14 @@ import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 public class NoteModel {
 
     @Null
+    @ApiModelProperty(hidden = true)
     private Long id;
 
     @NotEmpty
@@ -25,9 +27,11 @@ public class NoteModel {
     @Length(max = 1000)
     private String note;
 
+    @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
+    @ApiModelProperty(hidden = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updatedAt;
 
