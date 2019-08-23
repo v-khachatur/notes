@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import com.disqo.notes.business.note.control.NoteService;
 import com.disqo.notes.business.note.entity.Note;
 import com.disqo.notes.business.note.entity.NoteModel;
 import com.disqo.notes.business.note.entity.NoteRequestModel;
+import com.disqo.notes.business.user.entity.UserPrincipal;
 
 @RestController
 @RequestMapping("/notes")
@@ -36,35 +38,39 @@ public class NoteController {
     private NoteMapper noteMapper;
 
     @PostMapping
-    public NoteModel createNote(@RequestBody @Valid NoteModel noteModel) {
+    public NoteModel createNote(@AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody @Valid NoteModel noteModel) {
         Note note = noteMapper.fromNoteModel(noteModel);
-        note = noteService.createNote(note, noteModel.getUserId());
+        note = noteService.createNote(note, principal.getUserId());
         return noteMapper.toNoteModel(note);
     }
 
     @PutMapping("/{id}")
-    public NoteModel updateNote(@RequestBody @Valid NoteModel noteModel, @PathVariable("id") Long id) {
+    public NoteModel updateNote(@AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody @Valid NoteModel noteModel, @PathVariable("id") Long id) {
         Note note = noteMapper.fromNoteModel(noteModel);
         note.setId(id);
-        note = noteService.updateNote(note);
+        note = noteService.updateNote(note, principal.getUserId());
         return noteMapper.toNoteModel(note);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteNote(@PathVariable("id") Long id) {
-        noteService.deleteNote(id);
+    public ResponseEntity<?> deleteNote(@AuthenticationPrincipal UserPrincipal principal, @PathVariable("id") Long id) {
+        noteService.deleteNote(id, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public NoteModel getNoteById(@PathVariable("id") Long id) {
-        Note note = noteService.getNoteById(id).orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
+    public NoteModel getNoteById(@AuthenticationPrincipal UserPrincipal principal, @PathVariable("id") Long id) {
+        Note note = noteService.getNoteById(id, principal.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
         return noteMapper.toNoteModel(note);
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteModel>> getUserNotes(@Valid NoteRequestModel noteRequestModel) {
-        Page<Note> notes = noteService.getUsersNotes(noteRequestModel.getUserId(), noteRequestModel.getPage(),
+    public ResponseEntity<List<NoteModel>> getUserNotes(@AuthenticationPrincipal UserPrincipal principal,
+            @Valid NoteRequestModel noteRequestModel) {
+        Page<Note> notes = noteService.getUsersNotes(principal.getUserId(), noteRequestModel.getPage(),
                 noteRequestModel.getTotal());
 
         HttpHeaders headers = new HttpHeaders();

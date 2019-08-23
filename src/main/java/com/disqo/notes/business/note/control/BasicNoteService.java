@@ -42,9 +42,10 @@ public class BasicNoteService implements NoteService {
 
     @Override
     @Transactional
-    public Note updateNote(Note note) {
+    public Note updateNote(Note note, Long userId) {
         Objects.requireNonNull(note, "note must not be null");
-        Note old = noteRepository.findById(note.getId())
+        Objects.requireNonNull(userId, "user id must not be null");
+        Note old = getNoteById(note.getId(), userId)
                 .orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
 
         note.setCreatedAt(old.getCreatedAt());
@@ -56,18 +57,18 @@ public class BasicNoteService implements NoteService {
 
     @Override
     @Transactional
-    public void deleteNote(Long id) {
+    public void deleteNote(Long id, Long userId) {
         Objects.requireNonNull(id, "id must not be null");
-        Optional<Note> note = noteRepository.findById(id);
-        if (note.isPresent()) {
-            noteRepository.delete(note.get());
-        }
+        Objects.requireNonNull(userId, "user id must not be null");
+        Note old = getNoteById(id, userId).orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
+        noteRepository.delete(old);
     }
 
     @Override
-    public Optional<Note> getNoteById(Long id) {
+    public Optional<Note> getNoteById(Long id, Long userId) {
         Objects.requireNonNull(id, "id must not be null");
-        return noteRepository.findById(id);
+        Objects.requireNonNull(userId, "user id must not be null");
+        return noteRepository.findByIdAndUserId(id, userId);
     }
 
     @Override

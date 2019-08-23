@@ -10,11 +10,11 @@ public interface NoteService {
 
     Note createNote(Note note, Long userId);
 
-    Note updateNote(Note note);
+    Note updateNote(Note note, Long userId);
 
-    void deleteNote(Long id);
+    void deleteNote(Long id, Long userId);
 
-    Optional<Note> getNoteById(Long id);
+    Optional<Note> getNoteById(Long id, Long userId);
 
     Page<Note> getUsersNotes(Long userId, int first, int total);
 

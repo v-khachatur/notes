@@ -14,12 +14,12 @@ public class UserPrincipal extends User {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private Long userId;
 
-    public UserPrincipal(Long id, String username, String password,
+    public UserPrincipal(Long userId, String username, String password,
             Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
-        this.id = id;
+        this.userId = userId;
     }
 
 }

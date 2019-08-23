@@ -8,8 +8,6 @@ import lombok.Data;
 @Data
 public class NoteRequestModel {
 
-    private Long userId;
-
     @Min(1)
     @NotNull
     private Integer page;

@@ -21,9 +21,7 @@ public class NoteMapper {
     }
 
     public NoteModel toNoteModel(Note note) {
-        NoteModel noteModel = modelMapper.map(note, NoteModel.class);
-        noteModel.setUserId(note.getUser().getId());
-        return noteModel;
+        return modelMapper.map(note, NoteModel.class);
     }
 
     public List<NoteModel> toNoteModels(Page<Note> notes) {
