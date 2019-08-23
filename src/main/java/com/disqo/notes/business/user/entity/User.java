@@ -1,6 +1,8 @@
 package com.disqo.notes.business.user.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -13,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.disqo.notes.business.common.entity.Auditable;
+import com.disqo.notes.business.note.entity.Note;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,5 +39,8 @@ public class User extends Auditable {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Note> notes = new ArrayList<>();
 
 }
