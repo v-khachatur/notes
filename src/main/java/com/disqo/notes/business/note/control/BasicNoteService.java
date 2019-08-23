@@ -10,10 +10,11 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.disqo.notes.business.common.entity.EntityNotFoundException;
 import com.disqo.notes.business.note.entity.Note;
-import com.disqo.notes.business.note.entity.NoteNotFoundException;
 import com.disqo.notes.business.user.control.UserRepository;
 import com.disqo.notes.business.user.entity.User;
 
@@ -43,12 +44,24 @@ public class BasicNoteService implements NoteService {
     @Transactional
     public Note updateNote(Note note) {
         Objects.requireNonNull(note, "note must not be null");
-        Note old = noteRepository.findById(note.getId()).orElseThrow(NoteNotFoundException::new);
+        Note old = noteRepository.findById(note.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
 
         note.setCreatedAt(old.getCreatedAt());
         note.setUpdatedAt(LocalDateTime.now(Clock.systemUTC()));
+        note.setUser(old.getUser());
 
         return noteRepository.save(note);
+    }
+
+    @Override
+    @Transactional
+    public void deleteNote(Long id) {
+        Objects.requireNonNull(id, "id must not be null");
+        Optional<Note> note = noteRepository.findById(id);
+        if (note.isPresent()) {
+            noteRepository.delete(note.get());
+        }
     }
 
     @Override
@@ -58,9 +71,10 @@ public class BasicNoteService implements NoteService {
     }
 
     @Override
-    public Page<Note> getAllNotes(Long userId, int first, int total) {
+    public Page<Note> getUsersNotes(Long userId, int first, int total) {
         Objects.requireNonNull(userId, "userId must not be null");
-        return noteRepository.findAll(PageRequest.of(first, total));
+        Sort sort = Sort.by("id").descending();
+        return noteRepository.findByUserId(userId, PageRequest.of(first - 1, total, sort));
     }
 
 }

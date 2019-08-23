@@ -1,0 +1,76 @@
+package com.disqo.notes.business.note.boundary;
+
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.disqo.notes.business.common.entity.EntityNotFoundException;
+import com.disqo.notes.business.note.control.NoteMapper;
+import com.disqo.notes.business.note.control.NoteService;
+import com.disqo.notes.business.note.entity.Note;
+import com.disqo.notes.business.note.entity.NoteModel;
+import com.disqo.notes.business.note.entity.NoteRequestModel;
+
+@RestController
+@RequestMapping("/notes")
+public class NoteController {
+
+    @Autowired
+    private NoteService noteService;
+
+    @Autowired
+    private NoteMapper noteMapper;
+
+    @PostMapping
+    public NoteModel createNote(@RequestBody @Valid NoteModel noteModel) {
+        Note note = noteMapper.fromNoteModel(noteModel);
+        note = noteService.createNote(note, noteModel.getUserId());
+        return noteMapper.toNoteModel(note);
+    }
+
+    @PutMapping("/{id}")
+    public NoteModel updateNote(@RequestBody @Valid NoteModel noteModel, @PathVariable("id") Long id) {
+        Note note = noteMapper.fromNoteModel(noteModel);
+        note.setId(id);
+        note = noteService.updateNote(note);
+        return noteMapper.toNoteModel(note);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteNote(@PathVariable("id") Long id) {
+        noteService.deleteNote(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public NoteModel getNoteById(@PathVariable("id") Long id) {
+        Note note = noteService.getNoteById(id).orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
+        return noteMapper.toNoteModel(note);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<NoteModel>> getUserNotes(@Valid NoteRequestModel noteRequestModel) {
+        Page<Note> notes = noteService.getUsersNotes(noteRequestModel.getUserId(), noteRequestModel.getPage(),
+                noteRequestModel.getTotal());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("total", String.valueOf(notes.getTotalPages()));
+
+        return new ResponseEntity<>(noteMapper.toNoteModels(notes), headers, HttpStatus.OK);
+    }
+
+}
