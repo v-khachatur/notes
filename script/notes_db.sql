@@ -26,11 +26,11 @@ CREATE TABLE note(
 );
 
 INSERT INTO users(id, email, password, created_at, updated_at)
-VALUES (1, 'poxos@email.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', current_timestamp, current_timestamp);
+VALUES (1, 'poxos@email.com', '$2a$10$RjOYHY7kndkJFAp2q7N/qufpJCTMIXzwggIOjMzdG49k1xx7/7Zxa', current_timestamp, current_timestamp);
 INSERT INTO roles(users_id, name) VALUES (1, 'USER');
 
 INSERT INTO users(id, email, password, created_at, updated_at)
-VALUES (2, 'petros@email.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', current_timestamp, current_timestamp);
+VALUES (2, 'petros@email.com', '$2a$10$RjOYHY7kndkJFAp2q7N/qufpJCTMIXzwggIOjMzdG49k1xx7/7Zxa', current_timestamp, current_timestamp);
 INSERT INTO roles(users_id, name) VALUES (2, 'USER');
 
 INSERT INTO note(id, users_id, title, note, created_at, updated_at)
