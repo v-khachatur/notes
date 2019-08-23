@@ -27,6 +27,8 @@ import com.disqo.notes.business.note.entity.NoteModel;
 import com.disqo.notes.business.note.entity.NoteRequestModel;
 import com.disqo.notes.business.user.entity.UserPrincipal;
 
+import springfox.documentation.annotations.ApiIgnore;
+
 @RestController
 @RequestMapping("/notes")
 public class NoteController {
@@ -38,7 +40,7 @@ public class NoteController {
     private NoteMapper noteMapper;
 
     @PostMapping
-    public NoteModel createNote(@AuthenticationPrincipal UserPrincipal principal,
+    public NoteModel createNote(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody @Valid NoteModel noteModel) {
         Note note = noteMapper.fromNoteModel(noteModel);
         note = noteService.createNote(note, principal.getUserId());
@@ -46,7 +48,7 @@ public class NoteController {
     }
 
     @PutMapping("/{id}")
-    public NoteModel updateNote(@AuthenticationPrincipal UserPrincipal principal,
+    public NoteModel updateNote(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody @Valid NoteModel noteModel, @PathVariable("id") Long id) {
         Note note = noteMapper.fromNoteModel(noteModel);
         note.setId(id);
@@ -55,20 +57,22 @@ public class NoteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteNote(@AuthenticationPrincipal UserPrincipal principal, @PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteNote(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("id") Long id) {
         noteService.deleteNote(id, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public NoteModel getNoteById(@AuthenticationPrincipal UserPrincipal principal, @PathVariable("id") Long id) {
+    public NoteModel getNoteById(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("id") Long id) {
         Note note = noteService.getNoteById(id, principal.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("Note entity not found"));
         return noteMapper.toNoteModel(note);
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteModel>> getUserNotes(@AuthenticationPrincipal UserPrincipal principal,
+    public ResponseEntity<List<NoteModel>> getUserNotes(@ApiIgnore @AuthenticationPrincipal UserPrincipal principal,
             @Valid NoteRequestModel noteRequestModel) {
         Page<Note> notes = noteService.getUsersNotes(principal.getUserId(), noteRequestModel.getPage(),
                 noteRequestModel.getTotal());
